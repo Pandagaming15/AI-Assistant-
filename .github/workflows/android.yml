@@ -40,7 +40,7 @@ jobs:
           echo "Files:"
           ls -la
           echo "Gradle wrapper:"
-          find . -maxdepth 4 -name gradlew -type f
+          find . -maxdepth 4 -name gradle -type f
 
       - name: Build debug APK
         run: |
