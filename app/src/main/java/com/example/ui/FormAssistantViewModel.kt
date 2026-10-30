@@ -97,6 +97,17 @@ class FormAssistantViewModel(application: Application) : AndroidViewModel(applic
     private val _panelMode = MutableStateFlow(AssistantPanelMode.SPLIT_VIEW)
     val panelMode: StateFlow<AssistantPanelMode> = _panelMode.asStateFlow()
 
+    private val _splitRatio = MutableStateFlow(0.5f)
+    val splitRatio: StateFlow<Float> = _splitRatio.asStateFlow()
+
+    fun setSplitRatio(ratio: Float) {
+        _splitRatio.value = ratio.coerceIn(0.2f, 0.8f)
+    }
+
+    fun openGoogleSignIn() {
+        loadUrl("https://accounts.google.com/signin")
+    }
+
     private val _selectedTab = MutableStateFlow(0) // 0: Live Solver, 1: All Questions, 2: AI Tutor Chat, 3: Saved History
     val selectedTab: StateFlow<Int> = _selectedTab.asStateFlow()
 

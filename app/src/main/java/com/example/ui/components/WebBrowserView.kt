@@ -88,6 +88,11 @@ fun WebBrowserView(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
+            // Enable cookies and third-party cookies for Google authentication
+            val cookieManager = android.webkit.CookieManager.getInstance()
+            cookieManager.setAcceptCookie(true)
+            cookieManager.setAcceptThirdPartyCookies(this, true)
+
             settings.apply {
                 javaScriptEnabled = true
                 domStorageEnabled = true
@@ -99,7 +104,17 @@ fun WebBrowserView(
                 mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 allowFileAccess = true
                 allowContentAccess = true
-                userAgentString = settings.userAgentString + " FormAssistant/1.0"
+
+                // Google Account Sign-In & Create Account support:
+                // Google blocks embedded webviews when '; wv' or 'Version/4.0' is present.
+                // Using a standard modern Chrome Mobile UA allows Google Sign-In and account creation.
+                val defaultUa = userAgentString
+                val cleanUa = defaultUa.replace("; wv", "").replace(Regex("Version/\\d+\\.\\d+\\s*"), "")
+                userAgentString = if (cleanUa.contains("Chrome/")) cleanUa else "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.6613.127 Mobile Safari/537.36"
+
+                // Support window.open for Google Account creation and OAuth popups
+                javaScriptCanOpenWindowsAutomatically = true
+                setSupportMultipleWindows(true)
             }
 
             addJavascriptInterface(jsBridge, "AndroidFormBridge")
@@ -114,6 +129,31 @@ fun WebBrowserView(
                         canBack = view?.canGoBack() == true,
                         canForward = view?.canGoForward() == true
                     )
+                }
+
+                // Handle Google Sign-in / Create Account popup windows by loading into the same view
+                override fun onCreateWindow(
+                    view: WebView?,
+                    isDialog: Boolean,
+                    isUserGesture: Boolean,
+                    resultMsg: android.os.Message?
+                ): Boolean {
+                    val tempWebView = WebView(context).apply {
+                        settings.javaScriptEnabled = true
+                        settings.domStorageEnabled = true
+                        settings.userAgentString = view?.settings?.userAgentString
+                        webViewClient = object : WebViewClient() {
+                            override fun shouldOverrideUrlLoading(v: WebView?, request: WebResourceRequest?): Boolean {
+                                val targetUrl = request?.url?.toString() ?: return false
+                                view?.loadUrl(targetUrl)
+                                return true
+                            }
+                        }
+                    }
+                    val transport = resultMsg?.obj as? WebView.WebViewTransport
+                    transport?.webView = tempWebView
+                    resultMsg?.sendToTarget()
+                    return true
                 }
             }
 
@@ -138,11 +178,23 @@ fun WebBrowserView(
                         canBack = view?.canGoBack() == true,
                         canForward = view?.canGoForward() == true
                     )
+                    // Flush cookies so Google login state is saved immediately
+                    android.webkit.CookieManager.getInstance().flush()
                     // Inject scanning script
                     view?.evaluateJavascript(FormJavaScriptBridge.INJECTION_SCRIPT, null)
                 }
 
                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                    val url = request?.url?.toString() ?: return false
+                    if (url.startsWith("intent:") || url.startsWith("market:")) {
+                        try {
+                            val intent = android.content.Intent.parseUri(url, android.content.Intent.URI_INTENT_SCHEME)
+                            context.startActivity(intent)
+                            return true
+                        } catch (e: Exception) {
+                            return true
+                        }
+                    }
                     return false
                 }
             }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -81,12 +82,14 @@ fun FormAssistantScreen(
         ) {
             val isWideScreen = maxWidth >= 720.dp
 
+            val splitRatio by viewModel.splitRatio.collectAsState()
+
             if (isWideScreen) {
                 // Wide Screen: Side-by-side Dual Pane Layout
-                Row(modifier = Modifier.fillMaxSize()) {
+                Row(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
                     Box(
                         modifier = Modifier
-                            .weight(0.55f)
+                            .weight(splitRatio)
                             .fillMaxHeight()
                     ) {
                         WebBrowserView(viewModel = viewModel)
@@ -96,7 +99,7 @@ fun FormAssistantScreen(
 
                     Box(
                         modifier = Modifier
-                            .weight(0.45f)
+                            .weight(1f - splitRatio)
                             .fillMaxHeight()
                             .background(MaterialTheme.colorScheme.surface)
                     ) {
@@ -109,77 +112,32 @@ fun FormAssistantScreen(
                     }
                 }
             } else {
-                // Mobile Portrait Layout
-                when (panelMode) {
-                    AssistantPanelMode.SPLIT_VIEW -> {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            // Upper: Web browser (48%)
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(0.48f)
-                            ) {
-                                WebBrowserView(viewModel = viewModel)
-                            }
-
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-                            // Lower: Assistant Panel (52%)
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(0.52f)
-                                    .background(MaterialTheme.colorScheme.surface)
-                            ) {
-                                AssistantPanelContent(
-                                    viewModel = viewModel,
-                                    selectedTab = selectedTab,
-                                    tabs = tabs,
-                                    onTabSelected = { viewModel.setSelectedTab(it) }
-                                )
-                            }
-                        }
+                // Mobile Portrait Split Layout: Form on top, Assistant on bottom
+                Column(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
+                    // Upper: Web browser (driven by splitRatio: 50%, 70%, or 30%)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(splitRatio)
+                    ) {
+                        WebBrowserView(viewModel = viewModel)
                     }
-                    AssistantPanelMode.BOTTOM_DRAWER -> {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(0.68f)
-                            ) {
-                                WebBrowserView(viewModel = viewModel)
-                            }
 
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(0.32f)
-                                    .background(MaterialTheme.colorScheme.surface)
-                            ) {
-                                AssistantPanelContent(
-                                    viewModel = viewModel,
-                                    selectedTab = selectedTab,
-                                    tabs = tabs,
-                                    onTabSelected = { viewModel.setSelectedTab(it) }
-                                )
-                            }
-                        }
-                    }
-                    AssistantPanelMode.FULL_ASSISTANT -> {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(MaterialTheme.colorScheme.surface)
-                        ) {
-                            AssistantPanelContent(
-                                viewModel = viewModel,
-                                selectedTab = selectedTab,
-                                tabs = tabs,
-                                onTabSelected = { viewModel.setSelectedTab(it) }
-                            )
-                        }
+                    // Lower: Assistant Panel
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f - splitRatio)
+                            .background(MaterialTheme.colorScheme.surface)
+                    ) {
+                        AssistantPanelContent(
+                            viewModel = viewModel,
+                            selectedTab = selectedTab,
+                            tabs = tabs,
+                            onTabSelected = { viewModel.setSelectedTab(it) }
+                        )
                     }
                 }
             }
