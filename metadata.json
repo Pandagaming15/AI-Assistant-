@@ -1,0 +1,6 @@
+{
+  "name": "FormAI Assistant",
+  "description": "Real-time AI-powered assistant for Google Forms and quizzes with in-app browser and live answer recommendations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

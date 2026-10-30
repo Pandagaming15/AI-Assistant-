@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World History & Geography</title>
+    <style>
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f0ebf8;
+            margin: 0;
+            padding: 16px;
+            color: #202124;
+        }
+        .container { max-width: 640px; margin: 0 auto; }
+        .header-card {
+            background: #ffffff;
+            border-radius: 8px;
+            border-top: 10px solid #1a73e8;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+        .header-card h1 { margin: 0 0 8px 0; font-size: 24px; }
+        .question-card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+        .question-title { font-size: 16px; font-weight: 500; margin-bottom: 16px; }
+        .option-row {
+            display: flex;
+            align-items: center;
+            padding: 10px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 4px;
+        }
+        .option-row:hover { background-color: #f8f9fa; }
+        .option-row input { margin-right: 12px; accent-color: #1a73e8; transform: scale(1.2); }
+        .option-text { font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-card">
+            <h1>World History & Geography Quiz</h1>
+            <p>Multiple choice questions assessing knowledge of world capitals, civilizations, and historic discoveries.</p>
+        </div>
+
+        <div class="question-card">
+            <div class="question-title">1. What is the official capital city of Australia?</div>
+            <label class="option-row"><input type="radio" name="h1" value="A"><span class="option-text">Sydney</span></label>
+            <label class="option-row"><input type="radio" name="h1" value="B"><span class="option-text">Melbourne</span></label>
+            <label class="option-row"><input type="radio" name="h1" value="C"><span class="option-text">Canberra</span></label>
+            <label class="option-row"><input type="radio" name="h1" value="D"><span class="option-text">Perth</span></label>
+        </div>
+
+        <div class="question-card">
+            <div class="question-title">2. In which year did the Apollo 11 lunar module successfully land Neil Armstrong and Buzz Aldrin on the Moon?</div>
+            <label class="option-row"><input type="radio" name="h2" value="A"><span class="option-text">1965</span></label>
+            <label class="option-row"><input type="radio" name="h2" value="B"><span class="option-text">1969</span></label>
+            <label class="option-row"><input type="radio" name="h2" value="C"><span class="option-text">1972</span></label>
+            <label class="option-row"><input type="radio" name="h2" value="D"><span class="option-text">1958</span></label>
+        </div>
+
+        <div class="question-card">
+            <div class="question-title">3. Which ancient pre-Columbian civilization built Machu Picchu high in the Andes Mountains of Peru?</div>
+            <label class="option-row"><input type="radio" name="h3" value="A"><span class="option-text">Inca Empire</span></label>
+            <label class="option-row"><input type="radio" name="h3" value="B"><span class="option-text">Aztec Empire</span></label>
+            <label class="option-row"><input type="radio" name="h3" value="C"><span class="option-text">Maya Civilization</span></label>
+            <label class="option-row"><input type="radio" name="h3" value="D"><span class="option-text">Toltec</span></label>
+        </div>
+    </div>
+</body>
+</html>
