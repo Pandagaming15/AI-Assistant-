@@ -33,11 +33,29 @@ jobs:
           sdkmanager "platforms;android-36"
           sdkmanager "build-tools;36.0.0"
 
-      - name: Make Gradle wrapper executable
-        run: chmod +x gradlew
+      - name: Check Gradle wrapper
+        run: |
+          echo "Repository root:"
+          pwd
+          echo "Files:"
+          ls -la
+          echo "Gradle wrapper:"
+          find . -maxdepth 4 -name gradlew -type f
 
       - name: Build debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: |
+          if [ -f "./gradlew" ]; then
+            chmod +x ./gradlew
+            ./gradlew assembleDebug --stacktrace
+          elif [ -f "./app/gradlew" ]; then
+            cd app
+            chmod +x ./gradlew
+            ./gradlew assembleDebug --stacktrace
+          else
+            echo "ERROR: Gradle wrapper not found."
+            echo "Check whether gradlew is committed to the repository."
+            exit 1
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
