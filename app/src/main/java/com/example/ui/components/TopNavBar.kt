@@ -31,10 +31,12 @@ import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.VerticalSplit
 import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material.icons.filled.ViewStream
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.DropdownMenu
@@ -43,8 +45,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import com.example.util.saveCustomDebugToken
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -82,6 +87,8 @@ fun TopNavBar(
     var urlInputText by remember(currentUrl) { mutableStateOf(currentUrl) }
     var showMenu by remember { mutableStateOf(false) }
     var showGoogleAccountDialog by remember { mutableStateOf(false) }
+    var showAppCheckDialog by remember { mutableStateOf(false) }
+    var customDebugTokenInput by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
 
     val isBookmarked = savedForms.any { it.url == currentUrl && it.isFavorite }
@@ -287,6 +294,17 @@ fun TopNavBar(
                                 viewModel.loadUrl("https://docs.google.com/forms/u/0/")
                             }
                         )
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = { Text("App Check & Token Info") },
+                            leadingIcon = {
+                                Icon(Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                            },
+                            onClick = {
+                                showMenu = false
+                                showAppCheckDialog = true
+                            }
+                        )
                     }
 
                     // Google Account Helper Dropdown / Dialog
@@ -418,5 +436,62 @@ fun TopNavBar(
                 }
             }
         }
+    }
+
+    if (showAppCheckDialog) {
+        AlertDialog(
+            onDismissRequest = { showAppCheckDialog = false },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Security,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("App Check & Token")
+                }
+            },
+            text = {
+                Column {
+                    Text(
+                        text = "Provider: reCAPTCHA Enterprise\nSite Key: 6Lfx1wYuAAAAAPxebD6qi4uYFKGBE2dKHsjrh8_u\nStatus: Configured for device APKs",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "If running on an emulator without Google Play, you can optionally paste a Firebase Console debug secret here:",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    OutlinedTextField(
+                        value = customDebugTokenInput,
+                        onValueChange = { customDebugTokenInput = it },
+                        placeholder = { Text("Custom debug secret (optional)") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (customDebugTokenInput.isNotBlank()) {
+                            saveCustomDebugToken(context, customDebugTokenInput)
+                            Toast.makeText(context, "Debug token saved", Toast.LENGTH_SHORT).show()
+                        }
+                        showAppCheckDialog = false
+                    }
+                ) {
+                    Text("Save & Close")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAppCheckDialog = false }) {
+                    Text("Close")
+                }
+            }
+        )
     }
 }
