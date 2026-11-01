@@ -47,7 +47,7 @@ class FormAssistantViewModel(application: Application) : AndroidViewModel(applic
 
     private val db = AppDatabase.getInstance(application)
     private val formDao = db.formDao()
-    private val aiService = FormAiService()
+    private val aiService = FormAiService(application)
 
     val savedForms: StateFlow<List<SavedFormEntity>> = formDao.getAllSavedForms()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())

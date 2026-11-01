@@ -1,9 +1,11 @@
 package com.example.data.ai
 
+import android.content.Context
 import android.util.Log
 import com.example.data.model.AiAnswerResult
 import com.example.data.model.FormQuestion
 import com.example.data.model.SolverMode
+import com.example.util.ensureFirebaseApp
 import com.google.firebase.Firebase
 import com.google.firebase.ai.ai
 import com.google.firebase.ai.type.Schema
@@ -16,7 +18,7 @@ import org.json.JSONObject
 
 private const val TAG = "FormAiService"
 
-class FormAiService {
+class FormAiService(private val context: Context? = null) {
 
     // Structured JSON schema for question solving
     private val analysisSchema = Schema.obj(
@@ -35,6 +37,7 @@ class FormAiService {
     )
 
     private val structuredModel by lazy {
+        context?.let { ensureFirebaseApp(it) }
         Firebase.ai.generativeModel(
             modelName = "gemini-3.8-flash",
             generationConfig = generationConfig {
@@ -46,6 +49,7 @@ class FormAiService {
     }
 
     private val conversationalModel by lazy {
+        context?.let { ensureFirebaseApp(it) }
         Firebase.ai.generativeModel(
             modelName = "gemini-3.8-flash",
             generationConfig = generationConfig {
